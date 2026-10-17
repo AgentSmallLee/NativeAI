@@ -10,7 +10,12 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
+import java.io.FileWriter
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /**
@@ -27,6 +32,28 @@ class ChatRepository {
         .readTimeout(0, TimeUnit.MILLISECONDS) // SSE 长连接不能有读超时
         .connectTimeout(10, TimeUnit.SECONDS)
         .build()
+
+    /** 调试用：把流式每一帧（delta / reasoning）落盘；为 null 时不记录 */
+    @Volatile var deltaLogFile: File? = null
+
+    private fun logStreamStart() {
+        val file = deltaLogFile ?: return
+        runCatching {
+            FileWriter(file, true).use { w ->
+                w.append("\n===== ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())} =====\n")
+            }
+        }
+    }
+
+    private fun logSegment(label: String, frame: Int, text: String) {
+        val file = deltaLogFile ?: return
+        runCatching {
+            FileWriter(file, true).use { w ->
+                val escaped = text.replace("\n", "\\n").replace("\r", "\\r")
+                w.append("[$frame] $label len=${text.length} | $escaped\n")
+            }
+        }
+    }
 
     /**
      * 流式问答。
@@ -76,8 +103,11 @@ class ChatRepository {
                         return
                     }
                     try {
+                        logStreamStart()
+                        var frame = 0
                         while (!source.exhausted()) {
                             val line = source.readUtf8Line() ?: break
+                            Log.d("lixiaoiu", "onResponse: " + line)
                             if (!line.startsWith("data:")) continue
                             val payload = line.removePrefix("data:").trim()
                             when {
@@ -85,11 +115,18 @@ class ChatRepository {
                                 payload.isEmpty() -> Unit
                                 else -> {
                                     val obj = JSONObject(payload)
-                                    if (obj.has("delta")) {
-                                        onDelta(obj.getString("delta"))
-                                    } else if (obj.has("error")) {
-                                        onError(obj.getString("error"))
-                                        return
+                                    frame++
+                                    when {
+                                        obj.has("delta") -> {
+                                            val delta = obj.getString("delta")
+                                            logSegment("delta", frame, delta)
+                                            onDelta(delta)
+                                        }
+                                        obj.has("reasoning") -> logSegment("reasoning", frame, obj.getString("reasoning"))
+                                        obj.has("error") -> {
+                                            onError(obj.getString("error"))
+                                            return
+                                        }
                                     }
                                 }
                             }

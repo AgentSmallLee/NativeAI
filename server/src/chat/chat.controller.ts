@@ -67,6 +67,7 @@ export class ChatController {
         const lines = buffer.split('\n');
         buffer = lines.pop() ?? '';
         for (const line of lines) {
+            console.log(line)
           if (!line.startsWith('data:')) continue;
           const payload = line.slice(5).trim();
           if (!payload || payload === '[DONE]') continue; // 上游结束标记，由我们统一补 [DONE]

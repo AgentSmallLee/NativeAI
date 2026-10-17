@@ -1,0 +1,48 @@
+data: {"delta":"你好"}
+
+data: {"delta":"！"}
+
+data: {"delta":"很高兴"}
+
+data: {"delta":"见到"}
+
+data: {"delta":"你"}
+
+data: {"delta":"，"}
+
+data: {"delta":"有什么"}
+
+data: {"delta":"我可以"}
+
+data: {"delta":"帮忙"}
+
+data: {"delta":"的吗"}
+
+data: {"delta":"？"}
+
+data: {"delta":"无论是"}
+
+data: {"delta":"问题"}
+
+data: {"delta":"、"}
+
+data: {"delta":"聊天"}
+
+data: {"delta":"还是"}
+
+data: {"delta":"需要"}
+
+data: {"delta":"建议"}
+
+data: {"delta":"，"}
+
+data: {"delta":"都可以"}
+
+data: {"delta":"告诉我"}
+
+data: {"delta":"哦"}
+
+data: {"delta":"～"}
+
+data: [DONE]
+
