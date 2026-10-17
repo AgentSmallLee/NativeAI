@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NativeAI</string>
+    <string name="app_name">端侧AI</string>
     <string name="chat_input_hint">输入你的问题…</string>
     <string name="chat_send">发送</string>
     <string name="chat_waiting">思考中…</string>
