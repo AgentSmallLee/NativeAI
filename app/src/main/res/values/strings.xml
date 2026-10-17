@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">NativeAI</string>
+    <string name="chat_input_hint">输入你的问题…</string>
+    <string name="chat_send">发送</string>
+    <string name="chat_waiting">思考中…</string>
+    <string name="chat_network_error">网络出错：%1$s</string>
+    <string name="chat_empty_input">请输入内容</string>
 </resources>

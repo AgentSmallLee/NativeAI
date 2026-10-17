@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Chat UI -->
+    <color name="chat_user_bubble">#FF6200EE</color>
+    <color name="chat_user_text">#FFFFFFFF</color>
+    <color name="chat_assistant_bubble">#FFE8E8EC</color>
+    <color name="chat_assistant_text">#FF1C1B1F</color>
+    <color name="chat_input_background">#FFF2F2F5</color>
+    <color name="chat_error_text">#FFB00020</color>
 </resources>
