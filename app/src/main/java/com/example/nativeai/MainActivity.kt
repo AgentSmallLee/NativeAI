@@ -2,6 +2,7 @@ package com.example.nativeai
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.view.inputmethod.InputMethodManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -48,11 +49,15 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.btn_send).setOnClickListener { send() }
 
-        // edge-to-edge：根布局避开状态栏/导航栏
+        // edge-to-edge：根布局避开状态栏/导航栏；键盘弹出时顶起输入栏，收起时恢复
         val root = findViewById<View>(R.id.root)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.updatePadding(top = bars.top, bottom = bars.bottom)
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            view.updatePadding(
+                top = bars.top,
+                bottom = maxOf(bars.bottom, ime.bottom),
+            )
             insets
         }
 
@@ -103,6 +108,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
         input.text.clear()
+        hideKeyboard()
 
         // 发送中的问题：历史 = 当前列表（不含即将添加的两条）
         val history = adapter.historyForRequest().filter {
@@ -146,6 +152,12 @@ class MainActivity : AppCompatActivity() {
     private fun scrollToBottom() {
         val position = adapter.itemCount - 1
         if (position >= 0) recycler.smoothScrollToPosition(position)
+    }
+
+    /** 点击发送后收起软键盘 */
+    private fun hideKeyboard() {
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(input.windowToken, 0)
     }
 
     override fun onDestroy() {
