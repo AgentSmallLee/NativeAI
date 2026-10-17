@@ -1,6 +1,5 @@
 package com.example.nativeai
 
-import android.util.Log
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -10,12 +9,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.File
-import java.io.FileWriter
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /**
@@ -32,28 +26,6 @@ class ChatRepository {
         .readTimeout(0, TimeUnit.MILLISECONDS) // SSE 长连接不能有读超时
         .connectTimeout(10, TimeUnit.SECONDS)
         .build()
-
-    /** 调试用：把流式每一帧（delta / reasoning）落盘；为 null 时不记录 */
-    @Volatile var deltaLogFile: File? = null
-
-    private fun logStreamStart() {
-        val file = deltaLogFile ?: return
-        runCatching {
-            FileWriter(file, true).use { w ->
-                w.append("\n===== ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())} =====\n")
-            }
-        }
-    }
-
-    private fun logSegment(label: String, frame: Int, text: String) {
-        val file = deltaLogFile ?: return
-        runCatching {
-            FileWriter(file, true).use { w ->
-                val escaped = text.replace("\n", "\\n").replace("\r", "\\r")
-                w.append("[$frame] $label len=${text.length} | $escaped\n")
-            }
-        }
-    }
 
     /**
      * 流式问答。
@@ -98,20 +70,22 @@ class ChatRepository {
                         onError("HTTP ${resp.code}")
                         return
                     }
+                    // 通过source获取响应体的流式数据源
                     val source = resp.body?.source() ?: run {
                         onError("空响应")
                         return
                     }
                     try {
-                        logStreamStart()
                         var frame = 0
                         while (!source.exhausted()) {
                             val line = source.readUtf8Line() ?: break
-                            Log.d("lixiaoiu", "onResponse: " + line)
                             if (!line.startsWith("data:")) continue
                             val payload = line.removePrefix("data:").trim()
                             when {
-                                payload == "[DONE]" -> { onDone(); return }
+                                payload == "[DONE]" -> {
+                                    onDone(); return
+                                }
+
                                 payload.isEmpty() -> Unit
                                 else -> {
                                     val obj = JSONObject(payload)
@@ -119,10 +93,9 @@ class ChatRepository {
                                     when {
                                         obj.has("delta") -> {
                                             val delta = obj.getString("delta")
-                                            logSegment("delta", frame, delta)
                                             onDelta(delta)
                                         }
-                                        obj.has("reasoning") -> logSegment("reasoning", frame, obj.getString("reasoning"))
+
                                         obj.has("error") -> {
                                             onError(obj.getString("error"))
                                             return
@@ -155,8 +128,8 @@ class ChatRepository {
 
         private val isEmulator: Boolean
             get() = android.os.Build.FINGERPRINT.contains("generic", true) ||
-                android.os.Build.MODEL.startsWith("Emulator", true) ||
-                android.os.Build.PRODUCT.contains("sdk", true)
+                    android.os.Build.MODEL.startsWith("Emulator", true) ||
+                    android.os.Build.PRODUCT.contains("sdk", true)
 
         /**
          * 后端地址：模拟器自动用 10.0.2.2，真机用电脑局域网 IP。

@@ -1,8 +1,10 @@
 package com.example.nativeai
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import kotlin.math.log
 
 /**
  * 问答列表适配器：用户消息靠右、助手消息靠左，两种 item 布局。

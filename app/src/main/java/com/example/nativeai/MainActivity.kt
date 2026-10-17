@@ -1,20 +1,15 @@
 package com.example.nativeai
 
-import android.Manifest
-import android.content.pm.PackageManager
-import java.io.File
-import android.view.inputmethod.InputMethodManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -35,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     private var activeCall: okhttp3.Call? = null
 
     companion object {
-        private const val REQUEST_LOCAL_NETWORK = 1001
 
         /** 打字机刷新节拍（约 30fps） */
         private const val TYPEWRITER_TICK_MS = 33L
@@ -111,51 +105,6 @@ class MainActivity : AppCompatActivity() {
                 bottom = maxOf(bars.bottom, ime.bottom),
             )
             insets
-        }
-
-        requestLocalNetworkPermissionIfNeeded()
-
-        // 调试：流式每一帧落盘，观察上游真实分段（adb pull 取出查看）
-        repository.deltaLogFile = File(
-            getExternalFilesDir(null) ?: filesDir,
-            "stream_deltas.log",
-        )
-    }
-
-    /**
-     * Android 16+ (targetSdk 36+) 访问局域网（10.0.2.2 / 电脑 IP）需要运行时权限，
-     * 缺失时本地连接会被系统静默拦截：
-     * - API 33~36: NEARBY_WIFI_DEVICES
-     * - API 37+:   ACCESS_LOCAL_NETWORK（专用权限）
-     */
-    private fun requestLocalNetworkPermissionIfNeeded() {
-        val wanted = mutableListOf<String>()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            wanted += Manifest.permission.NEARBY_WIFI_DEVICES
-        }
-        if (Build.VERSION.SDK_INT >= 36) {
-            wanted += "android.permission.ACCESS_LOCAL_NETWORK"
-        }
-        // 只请求本设备平台真实存在的权限（请求不存在的权限会立即回调拒绝）
-        val toRequest = wanted.filter {
-            runCatching { packageManager.getPermissionInfo(it, 0) }.isSuccess &&
-                ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (toRequest.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, toRequest.toTypedArray(), REQUEST_LOCAL_NETWORK)
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_LOCAL_NETWORK &&
-            grantResults.firstOrNull() != PackageManager.PERMISSION_GRANTED
-        ) {
-            Toast.makeText(this, "未授权局域网访问，无法连接本地服务器", Toast.LENGTH_LONG).show()
         }
     }
 

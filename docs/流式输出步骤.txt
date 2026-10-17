@@ -1,0 +1,8 @@
+网络层
+    SSE 协议，okhttp发送POST请求，响应头设置Content-Type', 'text/event-stream; charset=utf-8
+数据解析层
+    逐行解析data
+数据流层
+    累计数据，向上发送
+UI层
+    拿到最新数据，更新内容，列表滚动
