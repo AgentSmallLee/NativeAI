@@ -31,6 +31,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <!-- 左侧切换按钮：键盘模式显示麦克风，语音模式显示键盘 -->
+        <ImageButton
+            android:id="@+id/btn_toggle_input"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/chat_voice_mic_desc"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_mic" />
+
+        <!-- 键盘模式：文本输入框 -->
         <EditText
             android:id="@+id/edit_input"
             android:layout_width="0dp"
@@ -44,6 +55,19 @@
             android:minHeight="48dp"
             android:paddingHorizontal="8dp"
             android:textSize="16sp" />
+
+        <!-- 语音模式：按住说话按钮（默认隐藏） -->
+        <Button
+            android:id="@+id/btn_hold_talk"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/bg_hold_talk"
+            android:text="@string/chat_voice_hold_to_talk"
+            android:textColor="#333333"
+            android:textSize="15sp"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btn_send"

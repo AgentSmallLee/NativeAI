@@ -5,4 +5,16 @@
     <string name="chat_waiting">思考中…</string>
     <string name="chat_network_error">网络出错：%1$s</string>
     <string name="chat_empty_input">请输入内容</string>
+
+    <!-- 语音相关 -->
+    <string name="chat_voice_hold_to_talk">按住说话</string>
+    <string name="chat_voice_release_to_send">松开结束</string>
+    <string name="chat_voice_recording">录音中…</string>
+    <string name="chat_voice_transcribing">识别中…</string>
+    <string name="chat_voice_record_error">录音失败：%1$s</string>
+    <string name="chat_voice_too_short">说话时间太短</string>
+    <string name="chat_voice_permission_denied">需要录音权限才能使用语音输入</string>
+    <string name="chat_voice_asr_error">语音识别失败：%1$s</string>
+    <string name="chat_voice_empty">未识别到语音内容</string>
+    <string name="chat_voice_mic_desc">切换到语音输入</string>
 </resources>

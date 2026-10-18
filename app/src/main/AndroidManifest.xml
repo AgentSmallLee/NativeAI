@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Android 16+ (targetSdk 36+) 访问局域网设备（10.0.2.2 / 电脑 IP）必须持有此运行时权限，
          否则本地网络连接会被系统静默拦截（表现为连接超时） -->
     <uses-permission

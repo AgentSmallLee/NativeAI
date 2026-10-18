@@ -1,0 +1,94 @@
+客户端录音 → 上传服务端 → 语音转文字（ASR）
+================================================
+
+架构：Android 客户端 + NestJS 服务端 + 第三方 ASR 服务（兼容 OpenAI Whisper API）
+
+====================
+一、整体流程
+====================
+
+1. 用户点击麦克风按钮 → 申请录音权限
+2. 授权后开始录音（MediaRecorder，AAC/m4a，16kHz 单声道）
+3. 用户再次点击 → 停止录音 → 文件保存到应用缓存目录
+4. 上传音频文件到服务端 POST /audio/transcribe（multipart/form-data）
+5. 服务端接收文件 → 保存到临时目录 → 调用上游 ASR API
+6. ASR 返回识别文字 → 服务端删除临时文件 → 返回 { text: "..." }
+7. 客户端收到文字 → 填入输入框 → 用户可编辑后发送
+
+====================
+二、服务端实现（NestJS）
+====================
+
+新增文件：
+- src/audio/audio.module.ts      音频模块
+- src/audio/audio.controller.ts  POST /audio/transcribe 接口
+- src/audio/asr.service.ts       ASR 上游调用（Whisper 兼容格式）
+
+修改文件：
+- src/app.module.ts              导入 AudioModule
+- .env.example                   新增 ASR_* 配置项
+
+接口定义：
+  POST /audio/transcribe
+  Content-Type: multipart/form-data
+  字段：file（音频文件）
+  成功：{ "text": "识别出的文字" }
+  失败：{ "error": "错误信息" }
+
+环境变量配置：
+  ASR_API_KEY     - API 密钥（必填）
+  ASR_BASE_URL    - API 地址，默认 https://api.openai.com/v1
+  ASR_MODEL       - 模型 ID，默认 whisper-1
+  ASR_LANGUAGE    - 语言代码，如 zh（可选，留空自动识别）
+
+====================
+三、客户端实现（Android）
+====================
+
+新增文件：
+- AudioRecorder.kt     MediaRecorder 录音封装
+- AudioRepository.kt   OkHttp 上传音频 + 解析识别结果
+- ic_mic.xml           麦克风图标
+- ic_stop.xml          停止图标
+
+修改文件：
+- AndroidManifest.xml  添加 RECORD_AUDIO 权限
+- activity_main.xml    输入栏左侧加麦克风按钮
+- strings.xml          新增语音相关字符串
+- MainActivity.kt      集成录音/上传/状态管理
+
+录音参数：
+- 来源：MIC
+- 格式：MPEG_4 / AAC
+- 采样率：16kHz
+- 声道：单声道
+- 比特率：64kbps
+- 输出：cacheDir/recordings/record_xxx.m4a
+- 最短时长：1秒（低于则放弃）
+- 最长时长：60秒（超过自动停止）
+
+状态机：
+  IDLE → RECORDING → UPLOADING → IDLE
+  （任何状态出错都回到 IDLE，并 Toast 提示）
+
+====================
+四、配置与使用
+====================
+
+1. 服务端 .env 中配置 ASR_API_KEY 等参数
+2. 启动服务端：npm run start:dev
+3. 编译安装 App 到手机/模拟器
+4. 点击输入栏左侧麦克风图标 → 授权 → 说话 → 再点停止
+5. 识别结果自动填入输入框，编辑后点发送
+
+====================
+五、支持的 ASR 服务
+====================
+
+所有兼容 OpenAI Whisper API（POST /audio/transcriptions）的服务都可通过修改 ASR_BASE_URL 接入：
+
+- OpenAI 官方（默认）
+- 各种中转/代理服务
+- 自部署的 Whisper API 服务（如 faster-whisper 等开源实现）
+
+修改 .env 中的 ASR_BASE_URL 和 ASR_API_KEY 即可切换。

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingVertical="4dp">
+
+    <!-- 语音气泡行：靠右 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginStart="64dp"
+        android:background="@drawable/bg_bubble_user"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp">
+
+        <!-- 时长 -->
+        <TextView
+            android:id="@+id/text_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:text="3s" />
+
+        <ImageView
+            android:id="@+id/btn_play"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_play"
+            android:contentDescription="播放" />
+    </LinearLayout>
+
+    <!-- 识别结果文字：气泡下方，小字灰色 -->
+    <TextView
+        android:id="@+id/text_asr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="2dp"
+        android:maxWidth="240dp"
+        android:textColor="#999999"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:text="识别结果文字" />
+</LinearLayout>

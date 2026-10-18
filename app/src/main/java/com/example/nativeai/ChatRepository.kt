@@ -119,14 +119,14 @@ class ChatRepository {
         private const val TAG = "ChatRepository"
 
         /** 模拟器访问宿主机的专用别名 */
-        private const val HOST_EMULATOR = "10.0.2.2"
+        internal const val HOST_EMULATOR = "10.0.2.2"
 
         /** 电脑的局域网 IP（真机与电脑需连同一 Wi-Fi；IP 变了改这里） */
-        private const val HOST_COMPUTER = "192.168.1.25"
+        internal const val HOST_COMPUTER = "192.168.1.25"
 
-        private const val PORT = 3000
+        internal const val PORT = 3000
 
-        private val isEmulator: Boolean
+        internal val isEmulator: Boolean
             get() = android.os.Build.FINGERPRINT.contains("generic", true) ||
                     android.os.Build.MODEL.startsWith("Emulator", true) ||
                     android.os.Build.PRODUCT.contains("sdk", true)
@@ -134,7 +134,7 @@ class ChatRepository {
         /**
          * 后端地址：模拟器自动用 10.0.2.2，真机用电脑局域网 IP。
          */
-        val BASE_URL: String
+        internal val BASE_URL: String
             get() = "http://${if (isEmulator) HOST_EMULATOR else HOST_COMPUTER}:$PORT"
     }
 }
